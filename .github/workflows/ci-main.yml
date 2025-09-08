@@ -38,7 +38,7 @@ jobs:
 #        run: cat base-artifacts/example1.txt
 
   test-resuability:
-    runs-on: ubuntu-latest
+
     uses: ./ ./.github/workflows/reusable-workflows.yml
     with:
       node-version: "20"
