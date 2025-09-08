@@ -35,4 +35,4 @@ jobs:
           path: base-artifacts/
 
       - name: display
-        run: cat example1.txt
+        run: cat base-artifacts/example1.txt
