@@ -25,6 +25,7 @@ jobs:
 
 
   test-artificat:
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: echo result
