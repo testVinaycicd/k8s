@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: dispplay node version
-        run: echo node-version
+        run: echo " ${{ inputs.node-version }} "
 
