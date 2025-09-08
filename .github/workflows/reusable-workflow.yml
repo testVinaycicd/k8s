@@ -1,0 +1,15 @@
+name: Reusable CI
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dispplay node version
+        run: echo node-version
+

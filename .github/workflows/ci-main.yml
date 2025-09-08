@@ -7,32 +7,37 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
+#  build-and-test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v5
+#
+#      - name: Setup Node
+#        run: echo " hello from job build and test " >> example1.txt
+#
+#      - name: Upload test report
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: namespace-file
+#          path: example1.txt
+#
+#
+#
+#  test-artificat:
+#    needs: build-and-test
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: echo result
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: namespace-file
+#          path: base-artifacts/
+#
+#      - name: display
+#        run: cat base-artifacts/example1.txt
 
-      - name: Setup Node
-        run: echo " hello from job build and test " >> example1.txt
-
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: namespace-file
-          path: example1.txt
-
-
-
-  test-artificat:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo result
-        uses: actions/download-artifact@v4
-        with:
-          name: namespace-file
-          path: base-artifacts/
-
-      - name: display
-        run: cat base-artifacts/example1.txt
+  test-resuability:
+    uses: ./ ./.github/workflows/reusable-workflows.yml
+    with:
+      node-version: "20"
