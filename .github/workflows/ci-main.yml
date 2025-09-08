@@ -34,4 +34,4 @@ jobs:
           path: base-artifacts/
 
       - name: display
-        run: touch example1.txt
+        run: cat example1.txt
