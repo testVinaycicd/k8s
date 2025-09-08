@@ -18,9 +18,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install deps
-        run: npm install
-        
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: namespace-file
+          path: base/namespace.yml
 
-      - name: Run tests
-        run: npm test
+      - name: Download base artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: namespace-file
+          path: base-artifacts/
