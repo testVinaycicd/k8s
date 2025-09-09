@@ -41,3 +41,10 @@ jobs:
     uses: ./.github/workflows/reusable-workflow.yml
     with:
       node-version: "20"
+
+  test-images:
+    - name: Trivy Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ">image-goes-here<"
+        format: 'table'

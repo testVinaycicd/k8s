@@ -1,0 +1,65 @@
+#
+#---------------------------FRONTEND------------------------------------------
+#
+
+
+#
+#---------------------------CATALOGUE------------------------------------------
+#
+
+#---
+#
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: Role
+#metadata:
+#  name: ro-config
+#  namespace: roboshop
+#rules:
+#  - apiGroups: [""]
+#    resources: ["configmaps","secrets"]
+#    verbs: ["get","list"]
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: RoleBinding
+#metadata:
+#  name: rb-catalogue
+#  namespace: roboshop
+#subjects:
+#  - kind: ServiceAccount
+#    name: sa-catalogue
+#    namespace: roboshop
+#roleRef:
+#  kind: Role
+#  name: ro-config
+#  apiGroup: rbac.authorization.k8s.io
+#
+#---
+
+#
+#---------------------------MONGODB------------------------------------------
+#
+
+
+#
+#---------------------------USER------------------------------------------
+#
+
+
+#
+#---------------------------CART------------------------------------------
+#
+
+
+#
+#---------------------------SHIPPING------------------------------------------
+#
+
+
+#
+#---------------------------SHIPPING_DB------------------------------------------
+#
+
+
+#
+#---------------------------PAYMENT------------------------------------------
+#

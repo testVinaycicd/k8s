@@ -1,0 +1,104 @@
+---
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: roboshop-default-deny-ingress
+  namespace: roboshop
+spec:
+  podSelector: {}            # selects all pods in roboshop
+  policyTypes:
+    - Ingress
+  # no ingress rules -> deny all ingress by default
+---
+
+
+---
+
+#
+#---------------------------FRONTEND------------------------------------------
+#
+
+
+#
+#---------------------------CATALOGUE------------------------------------------
+#
+
+---
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-catalogue
+  namespace: roboshop
+spec:
+  podSelector:
+    matchLabels:
+      app: catalogue
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+        - ipBlock:
+            cidr: 10.244.0.0/16   # your cluster PodCIDR (adjust if different)
+      ports:
+        - protocol: TCP
+          port: 8080
+
+
+---
+
+#
+#---------------------------MONGODB------------------------------------------
+#
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-catalogue-to-mongodb
+  namespace: roboshop
+spec:
+  podSelector:
+    matchLabels: {app: mongodb}
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app: catalogue}
+      ports:
+        - port: 27017
+
+
+---
+
+
+#
+#---------------------------USER------------------------------------------
+#
+
+
+#
+#---------------------------CART------------------------------------------
+#
+
+
+#
+#---------------------------SHIPPING------------------------------------------
+#
+
+
+#
+#---------------------------SHIPPING_DB------------------------------------------
+#
+
+
+#
+#---------------------------PAYMENT------------------------------------------
+#

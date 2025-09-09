@@ -1,0 +1,472 @@
+#
+#---------------------------FRONTEND------------------------------------------
+#
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: roboshop
+  labels:
+    app: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+#      annotations:
+#        prometheus.io/scrape: "true"        # keep for later
+#        prometheus.io/port: "80"
+    spec:
+      serviceAccountName: sa-frontend
+      containers:
+        - name: frontend
+          image: crysis307/learn-kube:frontend-latest
+          ports: [{ containerPort: 8080 }]
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+---
+
+#--------------------------FRONTEND-SERVICE-----------------------------------
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: roboshop
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+
+
+#
+#---------------------------CATALOGUE------------------------------------------
+#
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogue
+  namespace: roboshop
+  labels: { app: catalogue }
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels: {app: catalogue}
+  template:
+    metadata:
+      labels: { app: catalogue }
+#      annotations:
+#        prometheus.io/scrape: "true"        # keep for later
+#        prometheus.io/port: "8081"
+    spec:
+      serviceAccountName: sa-catalogue
+      containers:
+        - name: app
+          image: crysis307/learn-kube:catalogue-v1    # pin, don’t use :latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: {name: catalogue-config}
+          resources:
+            requests: {cpu: "100m", memory: "128Mi"}
+            limits:   {cpu: "500m", memory: "512Mi"}
+          readinessProbe:
+            httpGet: {path: /health, port: 8080}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /health, port: 8080}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+
+---
+
+#--------------------------catalogue-SERVICE-----------------------------------
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalogue
+  namespace: roboshop
+  labels: {app: catalogue}
+spec:
+  type: ClusterIP
+  selector: {app: catalogue}
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+
+---
+
+#
+#---------------------------MONGODB------------------------------------------
+#
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-service
+  namespace: roboshop
+  labels: { app: mongodb }
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels: {app: mongodb}
+  template:
+    metadata:
+      labels: { app: mongodb }
+    #      annotations:
+    #        prometheus.io/scrape: "true"        # keep for later
+    #        prometheus.io/port: "27017"
+    spec:
+      serviceAccountName: sa-mongodb
+      containers:
+        - name: app
+          image: crysis307/learn-kube:catalogue-db-v1     # pin, don’t use :latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          envFrom:
+            - configMapRef: {name: catalogue-db-config }
+          resources:
+            requests: {cpu: "100m", memory: "128Mi"}
+            limits:   {cpu: "500m", memory: "512Mi"}
+          readinessProbe:
+            httpGet: {path: /health, port: 27017}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: {path: /health, port: 27017}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+
+---
+
+#--------------------------MONGODB-SERVICE-----------------------------------
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: roboshop
+  labels: {app: catalogue}
+spec:
+  type: ClusterIP
+  selector: {app: mongodb}
+  ports:
+    - port: 27017
+      targetPort: 27017
+
+
+---
+#
+##
+##---------------------------USER------------------------------------------
+##
+#---
+#
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: user
+#  namespace: roboshop
+#  labels: {app: user}
+#spec:
+#  replicas: 2
+#  strategy:
+#    type: RollingUpdate
+#    rollingUpdate: {maxSurge: 25%, maxUnavailable: 0}
+#  selector: {matchLabels: {app: user}}
+#  template:
+#    metadata:
+#      labels: {app: user}
+##      annotations:
+##        prometheus.io/scrape: "true"
+##        prometheus.io/port: "8082"
+#    spec:
+#      serviceAccountName: sa-user
+#      containers:
+#        - name: app
+#          image: YOUR_REGISTRY/user:1.0.0
+#          ports: [{containerPort: 8082}]
+#          envFrom:
+#            - configMapRef: {name: user-config}
+#          resources:
+#            requests: {cpu: "100m", memory: "128Mi"}
+#            limits: {cpu: "500m", memory: "512Mi"}
+#          readinessProbe:
+#            httpGet: {path: /health, port: 8082}
+#            initialDelaySeconds: 5
+#            periodSeconds: 5
+#          livenessProbe:
+#            httpGet: {path: /health, port: 8082}
+#            initialDelaySeconds: 15
+#            periodSeconds: 10
+#
+#---
+#
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: user-service
+#  namespace: roboshop
+#spec:
+#  type: ClusterIP
+#  selector: {app: user}
+#  ports:
+#    - port: 8082
+#      targetPort: 8082
+#
+#---
+##
+##---------------------------CART------------------------------------------
+##
+#
+#---
+#
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: cart
+#  namespace: roboshop
+#  labels: {app: cart}
+#spec:
+#  replicas: 2
+#  strategy:
+#    type: RollingUpdate
+#    rollingUpdate: {maxSurge: 25%, maxUnavailable: 0}
+#  selector: {matchLabels: {app: cart}}
+#  template:
+#    metadata:
+#      labels: {app: cart}
+#    #      annotations:
+#    #        prometheus.io/scrape: "true"
+#    #        prometheus.io/port: "8083"
+#    spec:
+#      serviceAccountName: sa-cart
+#      containers:
+#        - name: app
+#          image: YOUR_REGISTRY/user:1.0.0
+#          ports: [{containerPort: 8083}]
+#          envFrom:
+#            - configMapRef: {name: cart-config}
+#
+#          resources:
+#            requests: {cpu: "100m", memory: "128Mi"}
+#            limits: {cpu: "500m", memory: "512Mi"}
+#          readinessProbe:
+#            httpGet: {path: /health, port: 8083}
+#            initialDelaySeconds: 5
+#            periodSeconds: 5
+#          livenessProbe:
+#            httpGet: {path: /health, port: 8083}
+#            initialDelaySeconds: 15
+#            periodSeconds: 10
+#
+#---
+#
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: cart-service
+#  namespace: roboshop
+#spec:
+#  type: ClusterIP
+#  selector: {app: cart}
+#  ports:
+#    - port: 8083
+#      targetPort: 8083
+#
+#---
+#
+##
+##---------------------------SHIPPING------------------------------------------
+##
+#
+#---
+#
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: shipping
+#  namespace: roboshop
+#  labels: {app: shipping}
+#spec:
+#  replicas: 2
+#  strategy:
+#    type: RollingUpdate
+#    rollingUpdate: {maxSurge: 25%, maxUnavailable: 0}
+#  selector: {matchLabels: {app: shipping}}
+#  template:
+#    metadata:
+#      labels: {app: shipping}
+#    #      annotations:
+#    #        prometheus.io/scrape: "true"
+#    #        prometheus.io/port: "8084"
+#    spec:
+#      serviceAccountName: sa-shipping
+#      containers:
+#        - name: app
+#          image: YOUR_REGISTRY/user:1.0.0
+#          ports: [{containerPort: 8084}]
+#          envFrom:
+#            - configMapRef: {name: shipping-config}
+#
+#          resources:
+#            requests: {cpu: "100m", memory: "128Mi"}
+#            limits: {cpu: "500m", memory: "512Mi"}
+#          readinessProbe:
+#            httpGet: {path: /health, port: 8084}
+#            initialDelaySeconds: 5
+#            periodSeconds: 5
+#          livenessProbe:
+#            httpGet: {path: /health, port: 8084}
+#            initialDelaySeconds: 15
+#            periodSeconds: 10
+#
+#---
+#
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: shipping-service
+#  namespace: roboshop
+#spec:
+#  type: ClusterIP
+#  selector: {app: shipping}
+#  ports:
+#    - port: 8084
+#      targetPort: 8084
+#
+#---
+#
+##
+##---------------------------SHIPPING_DB------------------------------------------
+##
+#
+#
+##
+##---------------------------PAYMENT------------------------------------------
+##
+#
+#---
+#
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: payment
+#  namespace: roboshop
+#  labels: {app: payment}
+#spec:
+#  replicas: 2
+#  strategy:
+#    type: RollingUpdate
+#    rollingUpdate: {maxSurge: 25%, maxUnavailable: 0}
+#  selector: {matchLabels: {app: payment}}
+#  template:
+#    metadata:
+#      labels: {app: payment}
+#    #      annotations:
+#    #        prometheus.io/scrape: "true"
+#    #        prometheus.io/port: "8085"
+#    spec:
+#      serviceAccountName: sa-payment
+#      containers:
+#        - name: app
+#          image: YOUR_REGISTRY/user:1.0.0
+#          ports: [{containerPort: 8085}]
+#          envFrom:
+#            - configMapRef: {name: payment-config}
+#
+#          resources:
+#            requests: {cpu: "100m", memory: "128Mi"}
+#            limits: {cpu: "500m", memory: "512Mi"}
+#          readinessProbe:
+#            httpGet: {path: /health, port: 8085}
+#            initialDelaySeconds: 5
+#            periodSeconds: 5
+#          livenessProbe:
+#            httpGet: {path: /health, port: 8085}
+#            initialDelaySeconds: 15
+#            periodSeconds: 10
+#
+#---
+#
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: payment-service
+#  namespace: roboshop
+#spec:
+#  type: ClusterIP
+#  selector: {app: payment}
+#  ports:
+#    - port: 8085
+#      targetPort: 8085
+#
+#---

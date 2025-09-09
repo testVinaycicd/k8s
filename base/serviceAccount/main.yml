@@ -1,0 +1,95 @@
+#
+#---------------------------FRONTEND------------------------------------------
+#
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-frontend
+  namespace: roboshop
+
+---
+
+#
+#---------------------------CATALOGUE------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-catalogue
+  namespace: roboshop
+---
+
+
+#
+#---------------------------MONGODB------------------------------------------
+#
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-mongodb
+  namespace: roboshop
+---
+#
+#---------------------------USER------------------------------------------
+#
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-user
+  namespace: roboshop
+---
+
+#
+#---------------------------CART------------------------------------------
+#
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-cart
+  namespace: roboshop
+---
+
+#
+#---------------------------SHIPPING------------------------------------------
+#
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-shipping
+  namespace: roboshop
+---
+
+#
+#---------------------------SHIPPING_DB------------------------------------------
+#
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-shipping-db
+  namespace: roboshop
+---
+
+#
+#---------------------------PAYMENT------------------------------------------
+#
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-payment
+  namespace: roboshop
+---

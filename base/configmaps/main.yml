@@ -1,0 +1,134 @@
+#
+#---------------------------FRONTEND------------------------------------------
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: roboshop
+data:
+  CATALOGUE_HOST: catalogue
+  CATALOGUE_PORT: "8080"
+  USER_HOST: user-service
+  USER_PORT: "8082"
+  CART_HOST: cart-service
+  CART_PORT: "8083"
+  SHIPPING_HOST: shipping-service
+  SHIPPING_PORT: "8084"
+  PAYMENT_HOST: payment-service
+  PAYMENT_PORT: "8085"
+
+#
+#---------------------------CATALOGUE------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catalogue-config
+  namespace: roboshop
+data:
+  MONGO_URL: mongodb://admin:admin123@mongodb:27017/catalogue?authSource=admin
+  MONGO: "true"
+
+---
+
+
+#
+#---------------------------MONGODB------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catalogue-db-config
+  namespace: roboshop
+data:
+  MONGO_INITDB_ROOT_USERNAME: admin
+  MONGO_INITDB_ROOT_PASSWORD: admin123
+  MONGO_INITDB_DATABASE: catalogue
+
+---
+
+#
+#---------------------------USER------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-config
+  namespace: roboshop
+data:
+  MONGO_URL: "mongodb://mongodb:27017/users"
+  REDIS_URL: "REDIs url"
+  MONGO: "true"
+
+---
+
+
+
+#
+#---------------------------CART------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-config
+  namespace: roboshop
+data:
+  REDIS_HOST: "REDIS ADDRESS"
+  CATALOGUE_HOST: catalogue
+  CATALOGUE_PORT: "8080"
+
+---
+
+#
+#---------------------------SHIPPING------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping-config
+  namespace: roboshop
+data:
+  CART_ENDPOINT: cart-service
+  DB_HOST: "MYSQL ADDRESS"
+
+---
+
+#
+#---------------------------PAYMENT------------------------------------------
+#
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-config
+  namespace: roboshop
+data:
+  CART_HOST: cart-service
+  CART_PORT: "8083"
+  USER_HOST: user-service
+  USER_PORT: "8084"
+  AMQP_HOST: "redis server"
+  AMQP_PORT: ""
+  AMQP_USER: "roboshop"
+  AMQP_PASS: "roboshop123"
+
+---
