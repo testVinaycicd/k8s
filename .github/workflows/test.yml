@@ -29,5 +29,5 @@ jobs:
       - name: Verify cluster
         run: |
           docker --version
-          kubectl version --short
+          kubectl version 
           kubectl get nodes -o wide
