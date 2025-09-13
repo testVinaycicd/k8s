@@ -31,3 +31,4 @@ jobs:
           docker --version
           kubectl version 
           kubectl get nodes -o wide
+
